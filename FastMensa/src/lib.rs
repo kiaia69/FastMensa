@@ -6,7 +6,7 @@ use bytes::Bytes;
 use http::HeaderValue;
 use login::Login;
 use registrazione::Registrazione;
-use anyhow::Result;
+use anyhow::{Result};
 use serde::Deserialize;
 use spin_sdk::{
     http::{Request, Response},
@@ -73,7 +73,7 @@ fn controlla_metodo(metodo: http::Method) -> bool {
 fn bad_request() -> Result<Response> {
 
     Ok(http::Response::builder()
-    .status(http::StatusCode::OK)
+    .status(http::StatusCode::OK) //se non metto OK non funziona, perchè????
     .header(http::header::ACCESS_CONTROL_ALLOW_HEADERS, "Content-Type, Authorization")
     .header(http::header::ACCESS_CONTROL_ALLOW_ORIGIN, HeaderValue::from_static("*"))
     .body(None)?)
@@ -93,8 +93,8 @@ fn handle_login(credenziali: Login) -> Result<Response> {
 
 
     match Login::verifica_credenziali(credenziali) {
-        true => logged("true".to_string()),
-        false => logged("false".to_string())
+        Ok(value) => logged(value.to_string()),
+        Err(e) => server_error(e.to_string())
     }
 
 }
@@ -102,10 +102,15 @@ fn handle_login(credenziali: Login) -> Result<Response> {
 fn handle_registration(credenziali: Registrazione) -> Result<Response> {
 
     match Registrazione::registra(credenziali) {
-        true => registrato("true".to_string()),
-        false => registrato("false".to_string())
+        Ok(value) => registrato(value.to_string()),
+        Err(e) => server_error(e.to_string())
     }
 
+}
+fn server_error(errore: String) -> Result<Response> {
+    Ok(http::Response::builder()
+    .status(http::StatusCode::INTERNAL_SERVER_ERROR)
+    .body(Some(errore.into()))?)
 }
 
 fn registrato(esito: String) -> Result<Response> {

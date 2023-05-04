@@ -1,6 +1,8 @@
-use std::{fs::File, io::Read, path::Path};
+use spin_sdk::{
+    key_value::{ Store},
+};
 use serde::Deserialize;
-
+use anyhow::Result;
 #[derive(Debug, Deserialize)]
 pub(crate) struct Login {
     username: String,
@@ -11,28 +13,23 @@ pub(crate) struct Login {
 
 impl Login{
     
-    pub(crate) fn verifica_credenziali(credenziali: Login) -> bool {
+    pub(crate) fn verifica_credenziali(credenziali: Login) -> Result<bool> {
 
-/* NON MI FA LEGGERE IL FILE PERCHÈ??? */
-        let mut iter;
-        let mut contents = String::new();
-        let file_path = Path::new("db/utenti.txt");
+        let key = credenziali.username.clone();
 
-        let mut fd = File::open(file_path).expect("Non sono riuscito ad aprire il file");
-        fd.read_to_string(&mut contents).expect("Non sono riuscito a leggere il file");
-        let mut result = false;
-        
-
-        for line in contents.lines(){
-            iter = line.split_whitespace();
-            if iter.next().unwrap_or_default() == credenziali.username && iter.next().unwrap_or_default() == credenziali.password {
-
-                    result=true;
-                    break;
-
-            }
+        let store = Store::open_default()?;
+        if !store.exists(key).unwrap_or_default() { //username non valido se non presente 
+            return Ok(false)
         }
+       let value = store.get(credenziali.username)?;
+       let string = String::from_utf8(value).unwrap();
+       let mut values = string.split_whitespace();
+       let pass = values.next().unwrap_or_default();
 
-        return result;
+        if credenziali.password == pass{
+                return Ok(true);
+        }
+       
+        return Ok(false);
     }
 }

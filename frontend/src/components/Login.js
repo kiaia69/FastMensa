@@ -1,20 +1,29 @@
-import React from 'react'
-import { Grid, Avatar, TextField, Button, Typography, Paper } from '@mui/material'
+import React, { useState } from 'react'
+import { Grid, Avatar, TextField, Button, Typography, Paper, Switch } from '@mui/material'
 import { NavLink } from "react-router-dom";
 
 const paperStyle = { padding: 45, height: '40vh', width: 280, margin: "100px auto" }
 
-const Login = ({ onChangeUsername, onChangePassword, onLogin }) => {
-    const avatarStyle = { backgroundColor: 'red' }
-    const btnstyle = { margin: '8px 0', backgroundColor: 'red' }
+const Login = ({ onChangeUsername, onChangePassword, onLogin, Oncambia}) => {
+    const avatarStyle = { backgroundColor: 'black' }
+    const btnstyle = { margin: '8px 0', backgroundColor: 'black' }
 
+    const [tipo, setTipo] = useState("Utente");
 
     const changeUsername = (e) => onChangeUsername(e)
 
-    const login = (e) => onLogin(e)
+    const login = (e) => onLogin(tipo, e)
 
     const changePassword = (e) => onChangePassword(e)
 
+    const swictch = (e) =>{
+        if (tipo === "Utente") {
+            setTipo("Mensa");
+        }
+        else setTipo("Utente");
+        Oncambia(e);
+    }
+    
 
     return (
         <div>
@@ -32,6 +41,7 @@ const Login = ({ onChangeUsername, onChangePassword, onLogin }) => {
                     <Typography > Non hai un account?
                         <NavLink className="navbar-item" activeclassname="is-active" to="/registrazione" exact="true">Registrati</NavLink>
                     </Typography>
+                    <Switch  color="default" onChange={swictch}/> {tipo}
                 </Paper>
 
             </Grid>

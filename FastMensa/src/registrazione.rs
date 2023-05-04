@@ -1,6 +1,8 @@
-use std::{ io::Write, path::Path, fs::File};
 use serde::Deserialize;
-use std::fs::OpenOptions;
+use anyhow::Result;
+use spin_sdk::{
+    key_value::{ Store},
+};
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct Registrazione {
@@ -13,18 +15,22 @@ pub(crate) struct Registrazione {
 
 impl Registrazione{
     
-    pub(crate) fn registra(dati:  Registrazione) -> bool {
+    pub(crate) fn registra(dati:  Registrazione) -> Result<bool> {
 
-        let file_path = Path::new("db/utenti.txt");
+        //la mia chiave è l'username
+        let key = dati.username.clone();
+        
+        let store = Store::open_default()?;
+        if store.exists(key).unwrap_or_default() { //username già esistente
+            return Ok(false)
+        }
+
+        println!("{}", format!("{} {}", dati.password, dati.email));
+    
+        store.set(dati.username, format!("{} {}", dati.password, dati.email))?; //il valore è dato dalla password e dall'email separate da uno spazio
+        //let value = store.get("mykey")?;
        
-       /*  let mut file = OpenOptions::new().append(true).open(file_path).expect("Impossibile aprire il file");
-        let  linea =  format!("{} {} {}\n", dati.username, dati.password, dati.email);
-         file.write_all(linea.as_bytes()).expect("Impossibile scrivere nel file");
-   */
-        let mut fd = File::open(file_path).expect("Non sono riuscito ad aprire il file");
-        let  linea =  format!("{} {} {}\n", dati.username, dati.password, dati.email);
-        fd.write(linea.as_bytes()).expect("Errore nella scrittura del file");
-        return true;
+        return Ok(true);
        
     }
 }

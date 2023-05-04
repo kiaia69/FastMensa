@@ -3,14 +3,16 @@ import  { useState } from 'react';
 import { Grid, Avatar, TextField, Button, Typography, Paper, Switch } from '@mui/material'
 import {   NavLink } from "react-router-dom";
 
-const paperStyle={padding :45,height:'45vh',width:280, margin:"100px auto"}
+const paperStyle={padding :45,height:'58vh',width:280, margin:"100px auto"}
 
-const Registrazione=({onRegistration, onSwicth})=>{
+const RegistraMensa=({onRegistration, onSwicth})=>{
     const avatarStyle={backgroundColor:'black'}
     const btnstyle={margin:'8px 0', backgroundColor: 'black'}
     
     const [registrazione, setRegistrazione] = useState({
-        username: '',
+        nome: '',
+        citta: '',
+        posizione: '',
         email: '',
         password: '',
         confermaPassword: ''
@@ -28,6 +30,7 @@ const Registrazione=({onRegistration, onSwicth})=>{
             username: e.target.value
         });
     }
+    const swictch = (e) => onSwicth(e)
 
     const changeConfermaPassword = (e) => {
 
@@ -52,7 +55,22 @@ const Registrazione=({onRegistration, onSwicth})=>{
             email: e.target.value
         });
     }
-    const swictch = (e) => onSwicth(e)
+
+    const changeCity = (e) => {
+        setRegistrazione({
+            ...registrazione,
+            citta: e.target.value
+        });
+    }
+
+    const changePosition = (e) => {
+        setRegistrazione({
+            ...registrazione,
+            posizione: e.target.value
+        });
+    }
+
+  
 
       const registra = (e) => {
         if(!verificaEmail(registrazione.email)){
@@ -64,7 +82,7 @@ const Registrazione=({onRegistration, onSwicth})=>{
 
         }
         else if (registrazione.confermaPassword === registrazione.password){
-        onRegistration(registrazione.username, registrazione.email, registrazione.password, "UTENTE", e)
+        onRegistration(registrazione.nome, registrazione.citta, registrazione.posizione, registrazione.email, registrazione.password, "MENSA", e)
         }
         else {
 
@@ -89,7 +107,9 @@ const Registrazione=({onRegistration, onSwicth})=>{
                      <Avatar style={avatarStyle}></Avatar>
                     <h3>Benvenuto, registrati</h3>
                 </Grid>
-                <TextField label='Username' value={registrazione.username} placeholder='Enter username' fullWidth required onChange={changeUsername}/>
+                <TextField label='Nome' value={registrazione.nome} placeholder='Enter name' fullWidth required onChange={changeUsername}/>
+                <TextField label='Citta' value={registrazione.nome} placeholder='Enter city' fullWidth required onChange={changeCity}/>
+                <TextField label='Posizione' value={registrazione.nome} placeholder='Enter where you are located' fullWidth required onChange={changePosition}/>
                 <TextField label='Email' value={registrazione.email} placeholder='Enter email' fullWidth required onChange={changeEmail}/>
                 <TextField label='Password' value={registrazione.password} placeholder='Enter password' type='password' fullWidth required onChange={changePassword}/>
                 <TextField label='Conferma Password' value={registrazione.confermaPassword} placeholder='Enter password' type='password' fullWidth required onChange={changeConfermaPassword}/>
@@ -99,8 +119,8 @@ const Registrazione=({onRegistration, onSwicth})=>{
                 <Typography > hai già un account? 
                      <NavLink className="navbar-item" activeclassname="is-active" to="/" exact="true">Accedi</NavLink>
                 </Typography> 
-                <Switch  color="default" onChange={swictch}/> Utente
-                
+                <Switch  color="default" onChange={swictch}/> Mensa
+
                   </Paper>
       
                  </Grid>
@@ -109,4 +129,4 @@ const Registrazione=({onRegistration, onSwicth})=>{
     )
 }
 
-export default Registrazione;
+export default RegistraMensa;

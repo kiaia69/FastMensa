@@ -6,6 +6,7 @@ trigger = { type = "http", base = "/" }
 version = "0.1.0"
 
 [[component]]
+key_value_stores = ["default"]
 id = "fast-mensa"
 source = "target/wasm32-wasi/release/fast_mensa.wasm"
 allowed_http_hosts = []
@@ -14,3 +15,4 @@ files =   ["db/utenti.txt"]
 route = "/App"
 [component.build]
 command = "cargo build --target wasm32-wasi --release"
+
