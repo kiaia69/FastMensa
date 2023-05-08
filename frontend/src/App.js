@@ -42,14 +42,14 @@ const changePassword = (e) => {
         password: e.target.value
     });
 }
-const registrazione = (username, email, password, tipo,e) => {
+const registrazioneUtente = (username, email, password,e) => {
   e.preventDefault();
   const registrationData = {
     username: username,
     email: email,
     password: password,
     operazione: "registrazione",
-    tipo: tipo
+    tipo: "Utente"
   }
 
 
@@ -80,7 +80,55 @@ const registrazione = (username, email, password, tipo,e) => {
 });
 };
 
+const registrazioneMensa = (username,citta, posizione, email, password,e) => {
+  e.preventDefault();
+  const registrationData = {
+    nome: username,
+    citta: citta,
+    posizione: posizione,
+    email: email,
+    password: password,
+    operazione: "registrazione",
+    tipo: "Mensa"
+  }
+
+
+  axios.post("http://127.0.0.1:3000/App", registrationData, {
+    headers: {
+        'Content-Type': 'application/json'
+    }
+}).then((response) => {
+    console.log(response);
+    if(response.statusText === "OK"){
+
+        if (response.data === true ) {
+         
+        alert("Hai registrato la tua attività con successo");
+        navigate('/');
+
+    } else{
+          alert("Il nome inserito esiste già");
+    }
+  }
+    else{
+      alert("Errore del server, registrazione annullata");
+    }
+
+}).catch(error => {
+    console.log(error.response);
+    alert("Errore del server, registrazione annullata");
+});
+};
+
+
 const login = (tipo, e) => {
+
+  if (tipo === "Utente"){
+    setSwitch(true);
+  }
+  else {
+    setSwitch(false);
+  }
 
     e.preventDefault();
     const userData = {
@@ -125,7 +173,7 @@ const login = (tipo, e) => {
         onLogin={login}/>} 
       />
       <Route path='/welcome' element={credenziali.login ? Switch ? <Welcome  nome={credenziali.username} /> : <Mensa nome={credenziali.username}  /> : <Navigate to='/' />} />
-      <Route path='/registrazione' element={Switch?     <Registrazione onRegistration={registrazione} onSwicth={switchAll}/> : <RegistraMensa onSwicth={switchAll}/>}/>
+      <Route path='/registrazione' element={Switch?     <Registrazione onRegistration={registrazioneUtente} onSwicth={switchAll}/> : <RegistraMensa onRegistration={registrazioneMensa} onSwicth={switchAll}/>}/>
     </Routes>
   )
 

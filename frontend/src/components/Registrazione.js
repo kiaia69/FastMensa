@@ -64,7 +64,7 @@ const Registrazione=({onRegistration, onSwicth})=>{
 
         }
         else if (registrazione.confermaPassword === registrazione.password){
-        onRegistration(registrazione.username, registrazione.email, registrazione.password, "UTENTE", e)
+        onRegistration(registrazione.username, registrazione.email, registrazione.password, e)
         }
         else {
 

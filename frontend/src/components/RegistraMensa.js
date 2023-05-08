@@ -27,7 +27,7 @@ const RegistraMensa=({onRegistration, onSwicth})=>{
 
         setRegistrazione({
             ...registrazione,
-            username: e.target.value
+            nome: e.target.value
         });
     }
     const swictch = (e) => onSwicth(e)
@@ -82,7 +82,7 @@ const RegistraMensa=({onRegistration, onSwicth})=>{
 
         }
         else if (registrazione.confermaPassword === registrazione.password){
-        onRegistration(registrazione.nome, registrazione.citta, registrazione.posizione, registrazione.email, registrazione.password, "MENSA", e)
+        onRegistration(registrazione.nome, registrazione.citta, registrazione.posizione, registrazione.email, registrazione.password, e)
         }
         else {
 
@@ -108,8 +108,8 @@ const RegistraMensa=({onRegistration, onSwicth})=>{
                     <h3>Benvenuto, registrati</h3>
                 </Grid>
                 <TextField label='Nome' value={registrazione.nome} placeholder='Enter name' fullWidth required onChange={changeUsername}/>
-                <TextField label='Citta' value={registrazione.nome} placeholder='Enter city' fullWidth required onChange={changeCity}/>
-                <TextField label='Posizione' value={registrazione.nome} placeholder='Enter where you are located' fullWidth required onChange={changePosition}/>
+                <TextField label='Citta' value={registrazione.citta} placeholder='Enter city' fullWidth required onChange={changeCity}/>
+                <TextField label='Posizione' value={registrazione.posizione} placeholder='Enter where you are located' fullWidth required onChange={changePosition}/>
                 <TextField label='Email' value={registrazione.email} placeholder='Enter email' fullWidth required onChange={changeEmail}/>
                 <TextField label='Password' value={registrazione.password} placeholder='Enter password' type='password' fullWidth required onChange={changePassword}/>
                 <TextField label='Conferma Password' value={registrazione.confermaPassword} placeholder='Enter password' type='password' fullWidth required onChange={changeConfermaPassword}/>

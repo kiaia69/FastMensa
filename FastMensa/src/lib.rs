@@ -5,12 +5,12 @@ mod registrazione;
 use bytes::Bytes;
 use http::HeaderValue;
 use login::Login;
-use registrazione::Registrazione;
+use registrazione::{RegistrazioneMensa, RegistrazioneUtente};
 use anyhow::{Result};
 use serde::Deserialize;
 use spin_sdk::{
     http::{Request, Response},
-    http_component,
+    http_component, key_value::Store,
 };
 use std::str;
 
@@ -19,6 +19,7 @@ use std::str;
 #[derive(Debug, Deserialize)]
 struct Type {
    operazione: String,
+   tipo: String, //per capire se è un utente o una mensa durante il login
 }
 
 
@@ -49,13 +50,21 @@ fn handle_fast_mensa(req: Request) -> Result<Response> {
   let tipo: Type = serde_json::from_str(&body_string).expect("Errore durante la deserializzazione del JSON");
   //let login: Login = serde_json::from_str(&body_string)?;
 
-  println!("Ricevuto una richiesta di tipo {} per il {}", method, tipo.operazione);
+  println!("Ricevuto una richiesta di tipo {} per il {} di un/una {}", method, tipo.operazione, tipo.tipo);
  
    println!("{}", body_string);
 
   match tipo.operazione.as_str(){
-        "login" =>  handle_login(serde_json::from_str(&body_string).expect("Errore durante la deserializzazione del JSON")),  
-        "registrazione" => handle_registration(serde_json::from_str(&body_string).expect("Errore durante la deserializzazione del JSON")),          
+        "login" =>  handle_login(serde_json::from_str(&body_string).expect("Errore durante la deserializzazione del JSON"), tipo.tipo),  
+        "registrazione" => {
+            
+            match tipo.tipo.as_str(){
+           "Utente" => handle_registration_user(serde_json::from_str(&body_string).expect("Errore durante la deserializzazione del JSON")),          
+           "Mensa" => handle_registration_mensa(serde_json::from_str(&body_string).expect("Errore durante la deserializzazione del JSON")),
+           _ => bad_request(),
+            }
+        }
+        "lista" => handle_lista(),
         _ =>bad_request(),
    }
 
@@ -89,28 +98,56 @@ fn logged(esito: String) -> Result<Response> {
     .body(Some(esito.into()))?)
 }
 
-fn handle_login(credenziali: Login) -> Result<Response> {
+fn handle_login(credenziali: Login, tipo: String) -> Result<Response> {
 
-
-    match Login::verifica_credenziali(credenziali) {
+if tipo == "Utente" {
+    match Login::verifica_credenziali_utente(credenziali) {
         Ok(value) => logged(value.to_string()),
         Err(e) => server_error(e.to_string())
     }
-
+}
+else {
+    match Login::verifica_credenziali_mensa(credenziali) {
+        Ok(value) => logged(value.to_string()),
+        Err(e) => server_error(e.to_string())
+        }
+    }
 }
 
-fn handle_registration(credenziali: Registrazione) -> Result<Response> {
-
-    match Registrazione::registra(credenziali) {
+fn handle_registration_user(credenziali: RegistrazioneUtente) -> Result<Response> {
+    match RegistrazioneUtente::registra_utente(credenziali) {
         Ok(value) => registrato(value.to_string()),
         Err(e) => server_error(e.to_string())
     }
+}
+
+fn handle_registration_mensa(credenziali: RegistrazioneMensa) -> Result<Response> {
+
+   
+        match RegistrazioneMensa::registra_mensa(credenziali) {
+            Ok(value) => registrato(value.to_string()),
+            Err(e) => server_error(e.to_string())
+        }
 
 }
 fn server_error(errore: String) -> Result<Response> {
     Ok(http::Response::builder()
     .status(http::StatusCode::INTERNAL_SERVER_ERROR)
     .body(Some(errore.into()))?)
+}
+
+fn handle_lista() -> Result<Response> {
+    let store = Store::open("mense")?;
+    let keys = store.get_keys()?;
+
+    let json_data = serde_json::to_string(&keys)?;
+
+    Ok(http::Response::builder()
+      .status(http::StatusCode::OK)
+       .header(http::header::ACCESS_CONTROL_ALLOW_HEADERS, "Content-Type, Authorization")
+      .header(http::header::CONTENT_TYPE, "application/json")
+      .header(http::header::ACCESS_CONTROL_ALLOW_ORIGIN, HeaderValue::from_static("*"))
+      .body(Some( json_data.into()))?)
 }
 
 fn registrato(esito: String) -> Result<Response> {

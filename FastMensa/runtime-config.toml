@@ -1,0 +1,4 @@
+# This defines a new store named mense
+[key_value_store.mense]
+type = "spin" 
+path = ".spin/mense.db"
